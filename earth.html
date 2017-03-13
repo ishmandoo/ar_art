@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>threejs - basic</title>
+
+  <style>
+    body{
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas{
+      background: red;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas"></canvas>
+
+  <script src="three.js"></script>
+  <script>
+    var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('myCanvas'), antialias: true});
+    renderer.setClearColor(0x000000);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    var camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 3000);
+
+    var scene = new THREE.Scene();
+
+    var light = new THREE.AmbientLight(0xffffff, 0.1);
+    scene.add(light);
+
+    var light1 = new THREE.PointLight(0xffffff, 0.8);
+    scene.add(light1);
+
+    var earthTextureMap = new THREE.TextureLoader().load('/images/earth/earthmap1k.jpg');
+    var earthBumpMap = new THREE.TextureLoader().load('/images/earth/earthbump1k.jpg');
+    var earthSpecularMap = new THREE.TextureLoader().load('/images/earth/earthspec1k.jpg')
+    var earthCloudMap = new THREE.TextureLoader().load('/images/earth/earthcloudmap.jpg')
+    var earthCloudMapTransp = new THREE.TextureLoader().load('/images/earth/earthcloudmaptransinvert.jpg')
+
+    var earthGeometry = new THREE.SphereGeometry(200, 100, 100);
+    var earthMaterial = new THREE.MeshPhongMaterial({
+      map:earthTextureMap,
+      bumpMap:earthBumpMap, bumpScale:50,
+      specularMap: earthSpecularMap
+    });
+    var earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+    earthMesh.position.set(-300, 0, -1000);
+    // earthMesh.rotation.z = 0.3;
+    scene.add(earthMesh)
+
+
+    var cloudGeometry = new THREE.SphereGeometry(205, 100, 100);
+    var cloudMaterial = new THREE.MeshPhongMaterial({
+      map: earthCloudMap,
+      alphaMap: earthCloudMapTransp,
+      side: THREE.DoubleSide,
+      opacity: 0.8,
+      transparent: true,
+      depthWrite: false
+    });
+    var cloudMesh = new THREE.Mesh(cloudGeometry,cloudMaterial);
+    earthMesh.add(cloudMesh)
+
+    requestAnimationFrame(render);
+
+    var x = 1;
+    function render() {
+      earthMesh.rotation.y += 0.002;
+      cloudMesh.rotation.y += 0.0020000001;
+      //Mesh.translateZ(10);
+      // earthMesh1.position.z = 1100*Math.sin(.05*x)-1500;
+
+
+      // earthMesh1.position.y = 400*Math.sin(.05*x);
+      // earthMesh1.position.x = 400*Math.sin(.05*x+Math.PI/2);
+
+      // earthMesh1.position.z = 400*Math.sin(.05*x)-1200;
+      // earthMesh1.position.x = 400*Math.sin(.05*x+Math.PI/2);
+
+
+
+
+      x += 1;
+      renderer.render(scene, camera);
+      requestAnimationFrame(render);
+    }
+
+
+    </script>
+</body>
+</html>
