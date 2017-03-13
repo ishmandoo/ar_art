@@ -41,7 +41,7 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
     var videoCamera;
     var cube;
 
-    var bufferSize = 2;
+    var bufferSize = 3;
     var ringBuffer = new Float32Array(16 * bufferSize);
     var ringIndex = 0;
 
@@ -131,16 +131,7 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
 
       var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 
-      //var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-      var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
-      cube = new THREE.Mesh( geometry, material );
-      console.log(cube);
-      console.log(camera);
-      //cube.matrixAutoUpdate = false;
-      scene.add( cube );
-
-
-      //camera.position.z = -5;
+      drawEarth();
 
 
 
@@ -188,6 +179,38 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
       //	console.log(cube);
 
 
+    }
+
+    function drawEarth() {
+      var earthTextureMap = new THREE.TextureLoader().load('/images/earth/earthmap1k.jpg');
+      var earthBumpMap = new THREE.TextureLoader().load('/images/earth/earthbump1k.jpg');
+      var earthSpecularMap = new THREE.TextureLoader().load('/images/earth/earthspec1k.jpg')
+      var earthCloudMap = new THREE.TextureLoader().load('/images/earth/earthcloudmap.jpg')
+      var earthCloudMapTransp = new THREE.TextureLoader().load('/images/earth/earthcloudmaptransinvert.jpg')
+
+      var earthGeometry = new THREE.SphereGeometry(2, 100, 100);
+      var earthMaterial = new THREE.MeshPhongMaterial({
+        map:earthTextureMap,
+        bumpMap:earthBumpMap, bumpScale:.1,
+        specularMap: earthSpecularMap
+      });
+      var earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+      earthMesh.position.set(-1, -1, 5);
+      // earthMesh.rotation.z = 0.3;
+      scene.add(earthMesh)
+
+
+      var cloudGeometry = new THREE.SphereGeometry(2.1, 100, 100);
+      var cloudMaterial = new THREE.MeshPhongMaterial({
+        map: earthCloudMap,
+        alphaMap: earthCloudMapTransp,
+        side: THREE.DoubleSide,
+        opacity: 0.8,
+        transparent: true,
+        depthWrite: false
+      });
+      var cloudMesh = new THREE.Mesh(cloudGeometry,cloudMaterial);
+      earthMesh.add(cloudMesh)
     }
 
     function processTags() {

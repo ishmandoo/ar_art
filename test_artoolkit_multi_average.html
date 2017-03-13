@@ -41,7 +41,7 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
     var videoCamera;
     var cube;
 
-    var bufferSize = 2;
+    var bufferSize = 3;
     var ringBuffer = new Float32Array(16 * bufferSize);
     var ringIndex = 0;
 
@@ -206,7 +206,7 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
 
 
       var markers = arController.getMarkerNum();
-      var largestArea = 0;
+      var totalArea = 0;
       //console.log(markers.length)
 
       for (var i=0; i < markers; i++) {
@@ -214,34 +214,34 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
         var marker = arController.getMarker(i);
         if(marker.idMatrix > -1){
           //console.log(marker);
+          maxIndex = marker.idMatrix;
+          totalArea += marker.area;
 
-          if (marker.area > largestArea){
-                maxIndex = marker.idMatrix;
-                largestArea = marker.area;
-                arController.getTransMatSquare(i, 1 /* marker width */, markerMatrix);
+          arController.getTransMatSquare(i, 1 /* marker width */, markerMatrix);
 
+          arController.transMatToGLMat(markerMatrix, glMatrix);
+          var tagpos = new THREE.Matrix4();
 
-                arController.transMatToGLMat(markerMatrix, glMatrix);
-                var tagpos = new THREE.Matrix4();
+          tagpos.elements.set(glMatrix);
 
-                tagpos.elements.set(glMatrix);
+          tagpos.multiply(tagOrientations[marker.idMatrix]);
 
-                tagpos.multiply(tagOrientations[marker.idMatrix]);
-
-              }
-
+          for(var j =0 ; j < 16; j++ ){
+            avgMatrix[j] += marker.area * tagpos.elements[j];
+          }
         }
       }
 
 
-      if(largestArea > 0){
+      if(totalArea > 0){
 
         //console.log(maxIndex);
         var smoothMatrix = new Float32Array(16);
 
         for(var j =0 ; j < 16; j++ ){
+          avgMatrix[j] = avgMatrix[j] / totalArea;
 
-          ringBuffer[ ringIndex * 16 + j] = tagpos.elements[j];
+          ringBuffer[ ringIndex * 16 + j] = avgMatrix[j];
           for(var k = 0; k < bufferSize ; k++){
             smoothMatrix[j] += ringBuffer[k * 16 + j] / bufferSize;
           }

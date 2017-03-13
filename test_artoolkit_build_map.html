@@ -11,24 +11,6 @@
 
   <script type="text/javascript">
 
-/*
-var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":0,"5":1,"6":0,"7":0,"8":0,"9":0,"10":1,"11":0,"12":0,"13":0,"14":0,"15":1}},"1":{"elements":{"0":-0.048528362065553665,"1":0.0335928313434124,"2":0.9982567429542542,"3":0,"4":0.014106669463217258,"5":0.9993576407432556,"6":-0.03294409438967705,"7":0,"8":-0.9987221956253052,"9":0.012483380734920502,"10":-0.048971131443977356,"11":0,"12":1.8318449258804321,"13":-0.11931201815605164,"14":1.8314937353134155,"15":1}},"2":{"elements":{"0":0.019809650257229805,"1":0.020982656627893448,"2":0.9995836019515991,"3":0,"4":-0.9991142749786377,"5":-0.03670883923768997,"6":0.02057092823088169,"7":0,"8":0.037125151604413986,"9":-0.99910569190979,"10":0.020236892625689507,"11":0,"12":0.8124555349349976,"13":1.0606516599655151,"14":1.422057032585144,"15":1}},"3":{"elements":{"0":-0.06107873097062111,"1":-0.025316588580608368,"2":0.9978117942810059,"3":0,"4":0.01366367656737566,"5":0.9995633959770203,"6":0.02619742602109909,"7":0,"8":-0.9980393648147583,"9":0.015233923681080341,"10":-0.06070612743496895,"11":0,"12":1.905739188194275,"13":0.08776523917913437,"14":4.382871627807617,"15":1}}}');
-
-*/
-
-var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":0,"5":1,"6":0,"7":0,"8":0,"9":0,"10":1,"11":0,"12":0,"13":0,"14":0,"15":1}},"1":{"elements":{"0":-0.052159782499074936,"1":0.011884236708283424,"2":-0.9985679984092712,"3":0,"4":0.027975914999842644,"5":0.9995541572570801,"6":0.010434695519506931,"7":0,"8":0.9982467889785767,"9":-0.027391590178012848,"10":-0.052469030022621155,"11":0,"12":-1.630102515220642,"13":0.09532264620065689,"14":1.961843490600586,"15":1}},"2":{"elements":{"0":0.014249232597649097,"1":-0.9993898868560791,"2":0.03188890591263771,"3":0,"4":0.01454993337392807,"5":-0.03168148547410965,"6":-0.999392032623291,"7":0,"8":0.9997926354408264,"9":0.014704497531056404,"10":0.014089589938521385,"11":0,"12":-1.3125767707824707,"13":0.9308427572250366,"14":1.1002248525619507,"15":1}},"3":{"elements":{"0":-0.0738251581788063,"1":0.006552829407155514,"2":-0.9972496628761292,"3":0,"4":-0.037842586636543274,"5":0.9992398023605347,"6":0.00936735887080431,"7":0,"8":0.9965529441833496,"9":0.038430046290159225,"10":-0.07352106273174286,"11":0,"12":-4.062390327453613,"13":-0.3329566717147827,"14":2.2645061016082764,"15":1}}}')
-
-/*
-      var tagOrientations = {}
-
-      for (var i = 0; i <= 11; i++) {
-        var relativeTagPos =  new THREE.Matrix4();
-        relativeTagPos.makeTranslation( -1* (i%4)*7/4 , Math.floor(i/4)*7/4, 0 );
-        tagOrientations[i] = relativeTagPos;
-
-
-      }
-      */
     // Globals
 
     var arController;
@@ -41,7 +23,7 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
     var videoCamera;
     var cube;
 
-    var bufferSize = 2;
+    var bufferSize = 3;
     var ringBuffer = new Float32Array(16 * bufferSize);
     var ringIndex = 0;
 
@@ -185,104 +167,115 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
 
 
       renderer.render( scene, camera );
+
+      cubes.map(function(cube){
+        scene.remove(cube);
+      })
+
       //	console.log(cube);
 
 
     }
 
+var cubes = []
+var captureRelationship = false;
+
+    function drawCube(transform, color){
+              var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+              var material = new THREE.MeshLambertMaterial({ color: color, wireframe: false })
+              cube = new THREE.Mesh( geometry, material );
+              var cubepos = new THREE.Matrix4()
+              cubepos.elements.set(transform);
+              cube.position.set( transform[12], transform[13], transform[14]);
+              cube.setRotationFromMatrix(cubepos)
+              cube.updateMatrix();
+              cubes.push(cube)
+              scene.add(cube);
+    }
+
+
+    var tagOrientations = {};
+    tagOrientations[0] = new THREE.Matrix4()
+
+
     function processTags() {
-
-
-
-      ringIndex += 1;
-      ringIndex = ringIndex % bufferSize;
-
-      //arController.process(video);
       arController.detectMarker(video);
 
       var markerMatrix = new Float32Array(12);
       var glMatrix = new Float32Array(16);
-      var avgMatrix = new Float32Array(16);
-
+      var minMatrix = new Float32Array(16);
+      var minMatrixKnown = new Float32Array(16);
 
       var markers = arController.getMarkerNum();
-      var largestArea = 0;
-      //console.log(markers.length)
+
+      var minIndexUnknown = 1000;
+      var minIndexKnown = 1000;
 
       for (var i=0; i < markers; i++) {
-
         var marker = arController.getMarker(i);
+
         if(marker.idMatrix > -1){
-          //console.log(marker);
+          arController.getTransMatSquare(i, 1 /* marker width */, markerMatrix);
+          arController.transMatToGLMat(markerMatrix, glMatrix);
 
-          if (marker.area > largestArea){
-                maxIndex = marker.idMatrix;
-                largestArea = marker.area;
-                arController.getTransMatSquare(i, 1 /* marker width */, markerMatrix);
+          if(tagOrientations[marker.idMatrix] == undefined){
+            drawCube(glMatrix, 0xff0000);
+            if(marker.idMatrix < minIndexUnknown){
+              minIndexUnknown = marker.idMatrix;
+              minMatrix.set(glMatrix);
+            }
+
+          }
+          else{
+            drawCube(glMatrix, 0x0000ff);
+              if(marker.idMatrix < minIndexKnown){
+                minIndexKnown = marker.idMatrix;
+                minMatrixKnown.set(glMatrix);
+            }
+          }
+          
 
 
-                arController.transMatToGLMat(markerMatrix, glMatrix);
-                var tagpos = new THREE.Matrix4();
 
-                tagpos.elements.set(glMatrix);
 
-                tagpos.multiply(tagOrientations[marker.idMatrix]);
-
-              }
 
         }
       }
+      console.log(minIndexKnown);
+      drawCube( minMatrix, 0x00ff00)
+      drawCube( minMatrixKnown, 0xffff00)
 
 
-      if(largestArea > 0){
+      if(captureRelationship && minIndexUnknown < 1000 && minIndexKnown < 1000){
+        var unKnownPos = new THREE.Matrix4();
+        unKnownPos.elements.set(minMatrix);
+        
+        var knownPos = new THREE.Matrix4();
+        knownPos.elements.set(minMatrixKnown);
 
-        //console.log(maxIndex);
-        var smoothMatrix = new Float32Array(16);
+        var relPos = new THREE.Matrix4();
 
-        for(var j =0 ; j < 16; j++ ){
+        relPos.getInverse(knownPos);
+        relPos.multiply(tagOrientations[minIndexKnown]);
+        relPos.multiply(unKnownPos);
 
-          ringBuffer[ ringIndex * 16 + j] = tagpos.elements[j];
-          for(var k = 0; k < bufferSize ; k++){
-            smoothMatrix[j] += ringBuffer[k * 16 + j] / bufferSize;
-          }
-        }
+        var newPos = new THREE.Matrix4();
 
-
-        var tagpos = new THREE.Matrix4()
-
-        //tagpos.elements.set(avgMatrix);
-        tagpos.elements.set(smoothMatrix);
+        newPos.getInverse(relPos);
 
 
 
-        var camerapos = new THREE.Matrix4();
-        camerapos.getInverse(tagpos);
-        var transform2 = camerapos.toArray();
-        camera.position.set(  transform2[12], transform2[13], transform2[14]);
+        tagOrientations[minIndexUnknown] = newPos;
 
-        camera.setRotationFromMatrix(camerapos)
-        camera.updateMatrix()
 
+
+        captureRelationship = false;
       }
     }
 
     document.body.onkeyup = function(e){
       if(e.keyCode == 32){
-        //your code
-        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-
-        //var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-        var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
-        var cube2 = new THREE.Mesh( geometry, material );
-        cube2.position.z = camera.position.z;
-        cube2.position.y = camera.position.y;
-        cube2.position.x = camera.position.x;
-        //cube.position.z
-
-        scene.add(cube2)
-        console.log(camera.position)
-
-        console.log("CUBE ADDED")
+        captureRelationship = true;
 
       }
     }
