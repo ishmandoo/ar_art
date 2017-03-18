@@ -4,32 +4,16 @@
   </body>
 
   <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-  <script src="artoolkit.min.js"></script>
-  <script src="artoolkit.api.js"></script>
+  <script src="./public/artoolkit.min.js"></script>
+  <script src="./public/artoolkit.api.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
   <script type="text/javascript">
 
-/*
-var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":0,"5":1,"6":0,"7":0,"8":0,"9":0,"10":1,"11":0,"12":0,"13":0,"14":0,"15":1}},"1":{"elements":{"0":-0.048528362065553665,"1":0.0335928313434124,"2":0.9982567429542542,"3":0,"4":0.014106669463217258,"5":0.9993576407432556,"6":-0.03294409438967705,"7":0,"8":-0.9987221956253052,"9":0.012483380734920502,"10":-0.048971131443977356,"11":0,"12":1.8318449258804321,"13":-0.11931201815605164,"14":1.8314937353134155,"15":1}},"2":{"elements":{"0":0.019809650257229805,"1":0.020982656627893448,"2":0.9995836019515991,"3":0,"4":-0.9991142749786377,"5":-0.03670883923768997,"6":0.02057092823088169,"7":0,"8":0.037125151604413986,"9":-0.99910569190979,"10":0.020236892625689507,"11":0,"12":0.8124555349349976,"13":1.0606516599655151,"14":1.422057032585144,"15":1}},"3":{"elements":{"0":-0.06107873097062111,"1":-0.025316588580608368,"2":0.9978117942810059,"3":0,"4":0.01366367656737566,"5":0.9995633959770203,"6":0.02619742602109909,"7":0,"8":-0.9980393648147583,"9":0.015233923681080341,"10":-0.06070612743496895,"11":0,"12":1.905739188194275,"13":0.08776523917913437,"14":4.382871627807617,"15":1}}}');
 
-*/
-
-var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":0,"5":1,"6":0,"7":0,"8":0,"9":0,"10":1,"11":0,"12":0,"13":0,"14":0,"15":1}},"1":{"elements":{"0":-0.052159782499074936,"1":0.011884236708283424,"2":-0.9985679984092712,"3":0,"4":0.027975914999842644,"5":0.9995541572570801,"6":0.010434695519506931,"7":0,"8":0.9982467889785767,"9":-0.027391590178012848,"10":-0.052469030022621155,"11":0,"12":-1.630102515220642,"13":0.09532264620065689,"14":1.961843490600586,"15":1}},"2":{"elements":{"0":0.014249232597649097,"1":-0.9993898868560791,"2":0.03188890591263771,"3":0,"4":0.01454993337392807,"5":-0.03168148547410965,"6":-0.999392032623291,"7":0,"8":0.9997926354408264,"9":0.014704497531056404,"10":0.014089589938521385,"11":0,"12":-1.3125767707824707,"13":0.9308427572250366,"14":1.1002248525619507,"15":1}},"3":{"elements":{"0":-0.0738251581788063,"1":0.006552829407155514,"2":-0.9972496628761292,"3":0,"4":-0.037842586636543274,"5":0.9992398023605347,"6":0.00936735887080431,"7":0,"8":0.9965529441833496,"9":0.038430046290159225,"10":-0.07352106273174286,"11":0,"12":-4.062390327453613,"13":-0.3329566717147827,"14":2.2645061016082764,"15":1}}}')
-
-/*
-      var tagOrientations = {}
-
-      for (var i = 0; i <= 11; i++) {
-        var relativeTagPos =  new THREE.Matrix4();
-        relativeTagPos.makeTranslation( -1* (i%4)*7/4 , Math.floor(i/4)*7/4, 0 );
-        tagOrientations[i] = relativeTagPos;
-
-
-      }
-      */
-    // Globals
+    var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":0,"5":1,"6":0,"7":0,"8":0,"9":0,"10":1,"11":0,"12":0,"13":0,"14":0,"15":1}},"1":{"elements":{"0":-0.052159782499074936,"1":0.011884236708283424,"2":-0.9985679984092712,"3":0,"4":0.027975914999842644,"5":0.9995541572570801,"6":0.010434695519506931,"7":0,"8":0.9982467889785767,"9":-0.027391590178012848,"10":-0.052469030022621155,"11":0,"12":-1.630102515220642,"13":0.09532264620065689,"14":1.961843490600586,"15":1}},"2":{"elements":{"0":0.014249232597649097,"1":-0.9993898868560791,"2":0.03188890591263771,"3":0,"4":0.01454993337392807,"5":-0.03168148547410965,"6":-0.999392032623291,"7":0,"8":0.9997926354408264,"9":0.014704497531056404,"10":0.014089589938521385,"11":0,"12":-1.3125767707824707,"13":0.9308427572250366,"14":1.1002248525619507,"15":1}},"3":{"elements":{"0":-0.0738251581788063,"1":0.006552829407155514,"2":-0.9972496628761292,"3":0,"4":-0.037842586636543274,"5":0.9992398023605347,"6":0.00936735887080431,"7":0,"8":0.9965529441833496,"9":0.038430046290159225,"10":-0.07352106273174286,"11":0,"12":-4.062390327453613,"13":-0.3329566717147827,"14":2.2645061016082764,"15":1}}}')
 
     var arController;
     var video;
@@ -45,12 +29,44 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
     var ringBuffer = new Float32Array(16 * bufferSize);
     var ringIndex = 0;
 
+    var socket = io.connect();
+    var objects = {}
+
+    function setUpSocket () {
+      socket.on('update', function (objectUpdates) {
+        console.log(objectUpdates)
+
+        for (var id in objectUpdates) {
+          if (id in objects) {
+            var obj = objects[id];
+            obj.position.x = objectUpdates[id][0];
+            obj.position.y = objectUpdates[id][1];
+            obj.position.z = objectUpdates[id][2];
+          } else {
+            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+
+            //var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
+            var obj = new THREE.Mesh( geometry, material );
+            obj.position.x = objectUpdates[id][0];
+            obj.position.y = objectUpdates[id][1];
+            obj.position.z = objectUpdates[id][2];
+
+            objects[id] = obj;
+
+            scene.add(obj)
+
+          }
+        }
+      });
+    }
 
     function setUpARController(video){
-      arController = new ARController(video, 'camera_para.dat');
+      arController = new ARController(video, 'public/camera_para.dat');
       arController.onload = function() {
         console.log('ARController ready for use', arController);
         setUpThreeJs();
+        setUpSocket();
 
         arController.setPatternDetectionMode( artoolkit.AR_MATRIX_CODE_DETECTION );
 
@@ -131,8 +147,6 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
 
       var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 
-      drawEarth();
-
 
 
 
@@ -172,6 +186,8 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
 
       processTags();
 
+      socket.emit("newPos", [camera.position.x, camera.position.y, camera.position.z])
+
       renderer.render( videoScene, videoCamera );
 
 
@@ -179,38 +195,6 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
       //	console.log(cube);
 
 
-    }
-
-    function drawEarth() {
-      var earthTextureMap = new THREE.TextureLoader().load('/images/earth/earthmap1k.jpg');
-      var earthBumpMap = new THREE.TextureLoader().load('/images/earth/earthbump1k.jpg');
-      var earthSpecularMap = new THREE.TextureLoader().load('/images/earth/earthspec1k.jpg')
-      var earthCloudMap = new THREE.TextureLoader().load('/images/earth/earthcloudmap.jpg')
-      var earthCloudMapTransp = new THREE.TextureLoader().load('/images/earth/earthcloudmaptransinvert.jpg')
-
-      var earthGeometry = new THREE.SphereGeometry(2, 100, 100);
-      var earthMaterial = new THREE.MeshPhongMaterial({
-        map:earthTextureMap,
-        bumpMap:earthBumpMap, bumpScale:.1,
-        specularMap: earthSpecularMap
-      });
-      var earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
-      earthMesh.position.set(-1, -1, 5);
-      // earthMesh.rotation.z = 0.3;
-      scene.add(earthMesh)
-
-
-      var cloudGeometry = new THREE.SphereGeometry(2.1, 100, 100);
-      var cloudMaterial = new THREE.MeshPhongMaterial({
-        map: earthCloudMap,
-        alphaMap: earthCloudMapTransp,
-        side: THREE.DoubleSide,
-        opacity: 0.8,
-        transparent: true,
-        depthWrite: false
-      });
-      var cloudMesh = new THREE.Mesh(cloudGeometry,cloudMaterial);
-      earthMesh.add(cloudMesh)
     }
 
     var usedMarkerId = 0;
@@ -306,21 +290,7 @@ var tagOrientations = JSON.parse('{"0":{"elements":{"0":1,"1":0,"2":0,"3":0,"4":
 
     document.body.onkeyup = function(e){
       if(e.keyCode == 32){
-        //your code
-        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 
-        //var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-        var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
-        var cube2 = new THREE.Mesh( geometry, material );
-        cube2.position.z = camera.position.z;
-        cube2.position.y = camera.position.y;
-        cube2.position.x = camera.position.x;
-        //cube.position.z
-
-        scene.add(cube2)
-        console.log(camera.position)
-
-        console.log("CUBE ADDED")
 
       }
     }
