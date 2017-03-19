@@ -6,6 +6,15 @@ var fs = require('fs');
 var path = require('path');
 
 
+app.all('*', ensureSecure);
+
+function ensureSecure(req, res, next){
+  if(req.secure){
+    return next();
+  };
+  res.redirect('https://' + req.hostname + req.url);
+}
+
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/public/test_sphere.html'));
 })
