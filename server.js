@@ -15,10 +15,18 @@ app.use("/images", express.static(__dirname + '/images'))
 app.use("/bower_components", express.static(__dirname + '/bower_components'))
 
 // This line is from the Node.js HTTPS documentation.
-var options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
-};
+if(process.env.NODE_ENV == 'prod'){
+  var options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/spaceadventure.zone/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/spaceadventure.zone/fullchain.pem')
+  };
+}
+else{
+  var options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+  };
+}
 
 // Create an HTTP service.
 var httpServer = http.createServer(app);
