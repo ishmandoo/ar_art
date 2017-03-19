@@ -254,7 +254,10 @@
       for (var i=0; i < markers; i++) {
 
         var marker = arController.getMarker(i);
-
+	
+	if (!(marker.idMatrix in tagOrientations)) {
+		continue;
+	}
         if(marker.idMatrix > -1){
 
           if (marker.area > largestArea){
