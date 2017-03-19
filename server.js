@@ -12,6 +12,7 @@ app.get('/', function (req, res) {
 
 app.use("/public", express.static(__dirname + '/public'))
 app.use("/images", express.static(__dirname + '/images'))
+app.use("/bower_components", express.static(__dirname + '/bower_components'))
 
 // This line is from the Node.js HTTPS documentation.
 var options = {
@@ -34,14 +35,20 @@ objects = {}
 io.on('connection', function(socket){
   console.log("a client connected ", socket.id);
 
-  objects[socket.id] = [0, 0, 0];
+  objects[socket.id] = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+  ];
 
-  socket.on("newPos", function(pos) {
+  socket.on("new pos", function(pos) {
     objects[socket.id] = pos;
   })
 
   socket.on('disconnect', function () {
-    //delete objects[socket.id];
+    io.emit('user disconnected', socket.id)
+    delete objects[socket.id];
   })
 
 

@@ -7,6 +7,9 @@
   <script src="./public/artoolkit.min.js"></script>
   <script src="./public/artoolkit.api.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
+  <script src="./public/OBJLoader.js"></script>
+  <script src="./public/MTLLoader.js"></script>
+  <script src='./bower_components/threex.spaceships/threex.spaceships.js'></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
@@ -34,30 +37,58 @@
 
     function setUpSocket () {
       socket.on('update', function (objectUpdates) {
-        console.log(objectUpdates)
+        //console.log(objectUpdates)
 
         for (var id in objectUpdates) {
-          if (id in objects) {
-            var obj = objects[id];
-            obj.position.x = objectUpdates[id][0];
-            obj.position.y = objectUpdates[id][1];
-            obj.position.z = objectUpdates[id][2];
-          } else {
-            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+          if (id != socket.id) {
+            var userPos = new THREE.Matrix4();
+            userPos.elements.set(objectUpdates[id]);
+            //console.log(objectUpdates[id]);
+            //console.log(userPos);
 
-            //var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
-            var obj = new THREE.Mesh( geometry, material );
-            obj.position.x = objectUpdates[id][0];
-            obj.position.y = objectUpdates[id][1];
-            obj.position.z = objectUpdates[id][2];
+            if (id in objects) {
+              var obj = objects[id];
+              obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+              obj.setRotationFromMatrix(userPos);
+              console.log(userPos.elements[12])
 
-            objects[id] = obj;
+              obj.updateMatrix();
+            } else {
+              /*
+              var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+              var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
+              var obj = new THREE.Mesh( geometry, material );
 
-            scene.add(obj)
 
+              obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+              obj.setRotationFromMatrix(userPos)
+              console.log(userPos.elements[12])
+
+              obj.updateMatrix();
+
+              objects[id] = obj;
+
+              scene.add(obj)
+              */
+              THREEx.SpaceShips.loadSpaceFighter01(function(obj){
+                obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+                obj.setRotationFromMatrix(userPos)
+                console.log(userPos.elements[12])
+
+                obj.updateMatrix();
+
+                objects[id] = obj;
+
+                scene.add(obj)
+              	scene.add(object3d)
+              })
+
+            }
           }
         }
+      });
+      socket.on('user disconnected', function(id) {
+        scene.remove(objects[id])
       });
     }
 
@@ -185,8 +216,8 @@
       requestAnimationFrame(tick);
 
       processTags();
-
-      socket.emit("newPos", [camera.position.x, camera.position.y, camera.position.z])
+      //console.log(camera.matrix.elements)
+      socket.emit("new pos", Array.from(camera.matrix.elements))
 
       renderer.render( videoScene, videoCamera );
 
@@ -280,7 +311,7 @@
         var camerapos = new THREE.Matrix4();
         camerapos.getInverse(tagpos);
         var transform2 = camerapos.toArray();
-        camera.position.set(  transform2[12], transform2[13], transform2[14]);
+        camera.position.set(transform2[12], transform2[13], transform2[14]);
 
         camera.setRotationFromMatrix(camerapos)
         camera.updateMatrix()
