@@ -323,10 +323,12 @@ function translationmatrix90(x,y){
       var glMatrix = new Float32Array(16);
       var avgMatrix = new Float32Array(16);
 
+      var tagpos = new THREE.Matrix4();
+
+      var nTags = 0;
+
 
       var markers = arController.getMarkerNum();
-      var largestArea = 0;
-
       for (var i=0; i < markers; i++) {
 
         var marker = arController.getMarker(i);
@@ -334,26 +336,17 @@ function translationmatrix90(x,y){
         if(marker.idMatrix > -1){
 
           if (marker.area > largestArea && tagOrientations[marker.idMatrix] != undefined){
-            maxIndex = marker.idMatrix;
-            largestArea = marker.area;
-
-
-            if (marker.idMatrix == lastUsedMarkerId) {
-              //arController.getTransMatSquareCont(i, 1 /* marker width */, lastUsedMatrix , markerMatrix);
-              arController.getTransMatSquare(i, 1 /* marker width */, markerMatrix);
-            } else {
-              arController.getTransMatSquare(i, 1 /* marker width */, markerMatrix);
-            }
-            usedMatrix = markerMatrix;
-            usedMarkerId = marker.idMatrix;
-
+            var markerId = marker.idMatrix;
+            nTags += 1;
 
             arController.transMatToGLMat(markerMatrix, glMatrix);
-            var tagpos = new THREE.Matrix4();
+            tagpos = new THREE.Matrix4();
 
             tagpos.elements.set(glMatrix);
 
             tagpos.multiply(tagOrientations[marker.idMatrix]);
+
+            avgMatrix.add(tagpos);
 
           }
 
