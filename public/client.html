@@ -13,6 +13,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
   <script type="text/javascript">
+
+
+    var origin = [-7, -3, 5];
+
     var arController;
     var video;
 
@@ -104,10 +108,81 @@
       scene.add( torus );
     }
 
+    function addEarth() {
+      var earthTextureMap = new THREE.TextureLoader().load('/images/earth/earthmap1k.jpg');
+      var earthBumpMap = new THREE.TextureLoader().load('/images/earth/earthbump1k.jpg');
+      var earthSpecularMap = new THREE.TextureLoader().load('/images/earth/earthspec1k.jpg')
+      var earthCloudMap = new THREE.TextureLoader().load('/images/earth/earthcloudmap.jpg')
+      var earthCloudMapTransp = new THREE.TextureLoader().load('/images/earth/earthcloudmaptransinvert.jpg')
+
+      var earthGeometry = new THREE.SphereGeometry(1, 50, 50);
+      var earthMaterial = new THREE.MeshPhongMaterial({
+        map:earthTextureMap,
+        bumpMap:earthBumpMap, bumpScale:.1,
+        specularMap: earthSpecularMap
+      });
+      var earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+      //earthMesh.position.set(-1, -1, 5);
+       earthMesh.rotation.z = 4;
+      scene.add(earthMesh)
+
+
+      var cloudGeometry = new THREE.SphereGeometry(1.05, 50, 50);
+      var cloudMaterial = new THREE.MeshPhongMaterial({
+        map: earthCloudMap,
+        alphaMap: earthCloudMapTransp,
+        side: THREE.DoubleSide,
+        opacity: 0.8,
+        transparent: true,
+        depthWrite: false
+      });
+      var cloudMesh = new THREE.Mesh(cloudGeometry,cloudMaterial);
+      earthMesh.add(cloudMesh)
+
+      objects[0] = earthMesh;
+    }
+
+    function addSun() {
+
+      var light = new THREE.PointLight(0xffffff, 1);
+      light.position.set(origin[0], origin[1], origin[2]);
+      scene.add(light);
+
+      var textureFlare =  new THREE.TextureLoader().load('images/sun/lensflare.png');
+
+      var flareColor = new THREE.Color( 0xffffff );
+      flareColor.setHSL( 1, 1, 1 );
+
+      var lensFlare = new THREE.LensFlare( textureFlare, 2500, 0.0, THREE.AdditiveBlending, flareColor );
+      lensFlare.position.set(origin[0], origin[1], origin[2]);
+
+      scene.add(lensFlare);
+
+
+      var sunTextureMap = new THREE.TextureLoader().load('images/sun/sunmap.jpg');
+      var sunGeometry = new THREE.SphereGeometry(1, 50, 50);
+      var sunMaterial = new THREE.MeshPhongMaterial({
+        map: sunTextureMap,
+        emissive: 0xffffff,
+        emissiveMap: sunTextureMap,
+        depthWrite: false
+      });
+      var sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+
+      sunMesh.position.set(origin[0], origin[1], origin[2]);
+      scene.add(sunMesh)
+    }
+
     function setUpThreeJs(){
       // Make the 3D scene
       scene = new THREE.Scene();
       camera = new THREE.Camera();
+
+      addSun();
+
+
+      var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+      scene.add( light );
 
       // We'll control the camera
       camera.matrixAutoUpdate = false;
@@ -115,7 +190,7 @@
 
       scene.add(camera);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer = new THREE.WebGLRenderer({ antialias: true , alpha: true});
 
       var aspectRatio = video.videoWidth/video.videoHeight;
 
@@ -145,7 +220,7 @@
       videoScene.add(videoCamera);
       videoScene.add(plane);
 
-      drawTorus();
+      addEarth();
     }
 
     function setUpSocket () {
@@ -160,7 +235,6 @@
               var obj = objects[id];
               obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
               obj.setRotationFromMatrix(userPos);
-              console.log(userPos.elements[12])
 
               obj.updateMatrix();
             } else {
@@ -218,18 +292,17 @@
     setUpWebcam();
   </script>
 
-
-    <style>
-      canvas {
-        margin-left: auto;
-        margin-right: auto;
-        border-style: solid;
-        border-color: #ffffff;
-        border-width: 10px;
-        display: block;
-      }
-      body {
-        background-color: #000000;
-      }
-    </style>
+  <style>
+    canvas {
+      margin-left: auto;
+      margin-right: auto;
+      border-style: solid;
+      border-color: #ffffff;
+      border-width: 10px;
+      display: block;
+    }
+    body {
+      background-color: #000000;
+    }
+  </style>
 </html>
