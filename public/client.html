@@ -245,8 +245,7 @@
 
 
               obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
-              obj.setRotationFromMatrix(userPos)
-              console.log(userPos.elements[12])
+              obj.setRotationFromMatrix(userPos);
 
               obj.updateMatrix();
 
@@ -255,16 +254,15 @@
               scene.add(obj)
               */
 
-              THREEx.SpaceShips.loadSpaceFighter01(function(obj){
-                obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
-                obj.setRotationFromMatrix(userPos)
-                console.log(userPos.elements[12])
+              THREEx.SpaceShips.loadSpaceFighter01(function(ship) {
+                ship.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+                ship.setRotationFromMatrix(userPos);
 
-                obj.updateMatrix();
+                ship.updateMatrix();
 
-                objects[id] = obj;
+                objects[id] = ship;
 
-                scene.add(obj);
+                scene.add(ship);
               })
 
             }
