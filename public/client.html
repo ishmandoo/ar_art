@@ -45,7 +45,7 @@
         });
 
         video = ARController.getUserMedia({
-          maxARVideoSize: 320,
+          maxARVideoSize: 640, // was 320
           video: {
             sourceId: id
           },
@@ -99,7 +99,7 @@
       var geometry = new THREE.TorusGeometry( 10, 1, 50, 50 );
       var material = new THREE.MeshLambertMaterial({ color: 0xff0000, wireframe: false });
       var torus = new THREE.Mesh( geometry, material );
-      torus.position.set(10, -5, 10);
+      torus.position.set(0, -0, 0);
       torus.rotation.x = Math.PI / 2;
       scene.add( torus );
     }
