@@ -1,10 +1,217 @@
 <html>
-<script src="/socket.io/socket.io.js"></script>
+  <body>
+  </body>
 
-<script>
-  var socket = io.connect();
-  socket.on('test', function (data) {
-    console.log("test")
-  });
-</script>
+  <script src="./public/artoolkit.min.js"></script>
+  <script src="./public/artoolkit.api.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
+  <script src="./public/OBJLoader.js"></script>
+  <script src="./public/MTLLoader.js"></script>
+  <script src='./bower_components/threex.spaceships/threex.spaceships.js'></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+
+  <script type="text/javascript">
+    var arController;
+    var video;
+
+    var renderer;
+    var scene;
+    var camera;
+    var videoScene;
+    var videoCamera;
+
+    var socket = io.connect();
+    var objects = {}
+
+    function setUpWebcam(){
+
+      navigator.mediaDevices.enumerateDevices()
+      .then(function(devices) {
+        var id = 0;
+        var fallbackId = 0;
+        devices.forEach(function(device) {
+          if (device.kind == "videoinput") {
+            console.log(device)
+            fallbackId = device.deviceId;
+            if (device.label.search(/rear|back/) >= 0) {
+              id = device.deviceId
+              alert("using device: " + device.label)
+            }
+            if (id == 0) {
+              id = fallbackId;
+            }
+          }
+        });
+
+        video = ARController.getUserMedia({
+          maxARVideoSize: 320,
+          video: {
+            sourceId: id
+          },
+          onSuccess: function(video) {
+            console.log('got video', video);
+            setUpARController(video);
+          }
+        });
+      });
+    };
+
+    function setUpARController(video) {
+      arController = new ARController(video, 'public/camera_para.dat');
+      arController.onload = function() {
+        console.log('ARController ready for use', arController);
+
+
+
+        arController.setPatternDetectionMode( artoolkit.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX );
+
+        setUpThreeJs();
+        setUpSocket();
+
+        arController.loadMultiMarker('public/multi-barcode-4x3.dat', function(marker, markerNum) {
+
+          arController.addEventListener('getMultiMarker', function(ev) {
+            console.log(ev.data.matrix);
+            if(camera){
+              if (ev.data.multiMarkerId == 0) {
+                var markerMatrix = ev.data.matrix;
+  							var markerPos = new THREE.Matrix4();
+                var cameraPos = new THREE.Matrix4();
+
+  							markerPos.elements.set(markerMatrix);
+  	            cameraPos.getInverse(markerPos);
+
+  							var cameraPosArray = cameraPos.toArray();
+  							camera.position.set(cameraPosArray[12], cameraPosArray[13], cameraPosArray[14]);
+  							camera.setRotationFromMatrix(cameraPos);
+  							camera.updateMatrix();
+              }
+						}
+          })
+
+          tick();
+        });
+      }
+    }
+
+    function drawTorus() {
+      var geometry = new THREE.TorusGeometry( 10, 1, 50, 50 );
+      var material = new THREE.MeshLambertMaterial({ color: 0xff0000, wireframe: false });
+      var torus = new THREE.Mesh( geometry, material );
+      torus.position.set(10, -5, 10);
+      torus.rotation.x = Math.PI / 2;
+      scene.add( torus );
+    }
+
+    function setUpThreeJs(){
+      // Make the 3D scene
+      scene = new THREE.Scene();
+      camera = new THREE.Camera();
+
+      // We'll control the camera
+      camera.matrixAutoUpdate = false;
+      camera.projectionMatrix.elements.set(arController.getCameraMatrix());
+
+      scene.add(camera);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+
+      renderer.setSize(video.videoWidth, video.videoHeight);
+      renderer.setPixelRatio(3);
+      renderer.autoClear = false;
+
+      document.body.appendChild( renderer.domElement );
+
+      // Make the video display scene
+      var videoTex = new THREE.VideoTexture(video);
+
+      videoTex.minFilter = THREE.LinearFilter;
+      videoTex.flipY = false;
+
+      var plane = new THREE.Mesh(
+        new THREE.PlaneBufferGeometry(2, 2),
+        new THREE.MeshBasicMaterial({map: videoTex, side: THREE.DoubleSide})
+      );
+
+      plane.material.depthTest = false;
+      plane.material.depthWrite = false;
+
+      videoScene = new THREE.Scene();
+      videoCamera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
+      videoScene.add(videoCamera);
+      videoScene.add(plane);
+
+      drawTorus();
+    }
+
+    function setUpSocket () {
+      socket.on('update', function (objectUpdates) {
+
+        for (var id in objectUpdates) {
+          if (id != socket.id) {
+            var userPos = new THREE.Matrix4();
+            userPos.elements.set(objectUpdates[id]);
+
+            if (id in objects) {
+              var obj = objects[id];
+              obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+              obj.setRotationFromMatrix(userPos);
+              console.log(userPos.elements[12])
+
+              obj.updateMatrix();
+            } else {
+
+              var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+              var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
+              var obj = new THREE.Mesh( geometry, material );
+
+
+              obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+              obj.setRotationFromMatrix(userPos)
+              console.log(userPos.elements[12])
+
+              obj.updateMatrix();
+
+              objects[id] = obj;
+
+              scene.add(obj)
+
+              /*
+              THREEx.SpaceShips.loadSpaceFighter01(function(obj){
+                obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+                obj.setRotationFromMatrix(userPos)
+                console.log(userPos.elements[12])
+
+                obj.updateMatrix();
+
+                objects[id] = obj;
+
+                scene.add(obj)
+              	scene.add(object3d)
+              })
+              */
+            }
+          }
+        }
+      });
+      socket.on('user disconnected', function(id) {
+        scene.remove(objects[id])
+      });
+    }
+
+    function tick(){
+      requestAnimationFrame(tick);
+
+      arController.process(video);
+
+      socket.emit("new pos", Array.from(camera.matrix.elements))
+
+      renderer.render( videoScene, videoCamera );
+
+      renderer.render( scene, camera );
+    }
+
+    setUpWebcam();
+  </script>
 </html>

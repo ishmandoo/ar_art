@@ -126,7 +126,6 @@
         });
 
         video = ARController.getUserMedia({
-          //maxARVideoSize: 320, // do AR processing on scaled down video of this size
           maxARVideoSize: 320,
           video: {
             sourceId: id
@@ -254,10 +253,10 @@
       for (var i=0; i < markers; i++) {
 
         var marker = arController.getMarker(i);
-	
-	if (!(marker.idMatrix in tagOrientations)) {
-		continue;
-	}
+
+    	if (!(marker.idMatrix in tagOrientations)) {
+    		continue;
+    	}
         if(marker.idMatrix > -1){
 
           if (marker.area > largestArea){

@@ -16,7 +16,7 @@ function ensureSecure(req, res, next){
 }
 
 app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname + '/public/test_sphere.html'));
+  res.sendFile(path.join(__dirname + '/public/client.html'));
 })
 
 app.use("/public", express.static(__dirname + '/public'))
