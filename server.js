@@ -106,7 +106,6 @@ function packVec(v){
 	return y;
 }
 
-
 function derivatives(t, y){
 	var pos = unpackVec(y.slice(0, y.length/2));
 	var xdot = y.slice(y.length/2);
@@ -134,10 +133,10 @@ var nPlanets = 1;
 //var state = numeric.mul(5,numeric.random([nPlanets * 3 ])).concat(numeric.mul(1,numeric.random([nPlanets * 3 ])));
 var state = [10, 0, 0, 0, 0, 1];
 var origin = [-7, -3, 5];
-var R = 10;
+var R = 6;
 
-function updatePlanetPositions() {
-	/*var now = new Date().getTime();
+function updatePlanetPositionsIntegrator() {
+	var now = new Date().getTime();
   var dt = (now - (time || now)) / 1000;
 
   time = now;
@@ -156,8 +155,9 @@ function updatePlanetPositions() {
       pos[i][0] + origin[0], pos[i][1] + origin[1], pos[i][2] + origin[2], 1,
     ];
 	}
-  */
+}
 
+function updatePlanetPositions() {
   var now = new Date().getTime();
   time = now;
 

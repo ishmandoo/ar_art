@@ -6,9 +6,9 @@
   <script src="./public/artoolkit.min.js"></script>
   <script src="./public/artoolkit.api.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
-  <!--<script src="./public/OBJLoader.js"></script>
-  <script src="./public/MTLLoader.js"></script>-->
-  <script src='./bower_components/threex.planets/threex.planets.js'></script>
+  <script src="./public/OBJLoader.js"></script>
+  <script src="./public/MTLLoader.js"></script>
+  <script src='./bower_components/threex.spaceships/threex.spaceships.js'></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
@@ -202,7 +202,6 @@
       document.body.appendChild( renderer.domElement );
 
       // Make the video display scene
-      /*
       var videoTex = new THREE.VideoTexture(video);
 
       videoTex.minFilter = THREE.LinearFilter;
@@ -220,12 +219,8 @@
       videoCamera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
       videoScene.add(videoCamera);
       videoScene.add(plane);
-      */
 
       addEarth();
-
-      var starField	= THREEx.Planets.createStarfield()
-      scene.add(starField)
     }
 
     function setUpSocket () {
@@ -243,7 +238,7 @@
 
               obj.updateMatrix();
             } else {
-
+              /*
               var geometry = new THREE.BoxGeometry( 1, 1, 1 );
               var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
               var obj = new THREE.Mesh( geometry, material );
@@ -258,8 +253,8 @@
               objects[id] = obj;
 
               scene.add(obj)
+              */
 
-              /*
               THREEx.SpaceShips.loadSpaceFighter01(function(obj){
                 obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
                 obj.setRotationFromMatrix(userPos)
@@ -272,7 +267,7 @@
                 scene.add(obj)
               	scene.add(object3d)
               })
-              */
+
             }
           }
         }
@@ -289,7 +284,7 @@
 
       socket.emit("new pos", Array.from(camera.matrix.elements))
 
-      //renderer.render( videoScene, videoCamera );
+      renderer.render( videoScene, videoCamera );
 
       renderer.render( scene, camera );
     }
