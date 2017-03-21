@@ -2,6 +2,7 @@
   <body>
   </body>
 
+
   <script src="./public/artoolkit.min.js"></script>
   <script src="./public/artoolkit.api.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
@@ -72,7 +73,6 @@
         arController.loadMultiMarker('public/multi-barcode-4x3.dat', function(marker, markerNum) {
 
           arController.addEventListener('getMultiMarker', function(ev) {
-            console.log(ev.data.matrix);
             if(camera){
               if (ev.data.multiMarkerId == 0) {
                 var markerMatrix = ev.data.matrix;
@@ -117,6 +117,9 @@
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
 
+      var aspectRatio = video.videoWidth/video.videoHeight;
+
+      //renderer.setSize(window.innerWidth, window.innerWidth / aspectRatio);
       renderer.setSize(video.videoWidth, video.videoHeight);
       renderer.setPixelRatio(3);
       renderer.autoClear = false;
@@ -214,4 +217,19 @@
 
     setUpWebcam();
   </script>
+
+
+    <style>
+      canvas {
+        margin-left: auto;
+        margin-right: auto;
+        border-style: solid;
+        border-color: #ffffff;
+        border-width: 10px;
+        display: block;
+      }
+      body {
+        background-color: #000000;
+      }
+    </style>
 </html>
