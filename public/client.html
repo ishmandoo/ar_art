@@ -14,9 +14,8 @@
 
   <script type="text/javascript">
 
-
-    var origin = [-7, -3, 5];
-    var originVec = new THREE.Vector3(origin[0], origin[1], origin[3]);
+    var origin = [-10.6, 3, 5];
+    var originVec = new THREE.Vector3(origin[0], origin[1], origin[2]);
 
     var arController;
     var video;
@@ -43,7 +42,7 @@
             fallbackId = device.deviceId;
             if (device.label.search(/rear|back/) >= 0) {
               id = device.deviceId
-              alert("using device: " + device.label)
+              //alert("using device: " + device.label)
             }
             if (id == 0) {
               id = fallbackId;
@@ -175,11 +174,29 @@
       scene.add(sunMesh)
     }
 
+    /*
     function placeLensFlare() {
       var newPos = new THREE.Vector3();
       newPos.lerpVectors(camera.position, originVec, 0.3);
-      lensFlare.position = newPos;
+      console.log(newPos)
+      lensFlare.position.set(newPos.x, newPos.y, newPos.z);
     }
+    */
+
+    function placeLensFlare() {
+      var newPos = new THREE.Vector3();
+
+      //newPos = originVec;
+      //newPos.sub(camera.position);
+      newPos = camera.position;
+      newPos.sub(originVec);
+      newPos.normalize();
+      newPos.multiplyScalar(1.1);
+      newPos.addVectors(newPos, originVec);
+      console.log(newPos)
+      lensFlare.position.set(newPos.x, newPos.y, newPos.z);
+    }
+
 
     function setUpThreeJs(){
       // Make the 3D scene
@@ -291,6 +308,7 @@
       arController.process(video);
 
       placeLensFlare();
+      console.log(lensFlare);
 
       socket.emit("new pos", Array.from(camera.matrix.elements))
 

@@ -132,7 +132,7 @@ var time;
 var nPlanets = 1;
 //var state = numeric.mul(5,numeric.random([nPlanets * 3 ])).concat(numeric.mul(1,numeric.random([nPlanets * 3 ])));
 var state = [10, 0, 0, 0, 0, 1];
-var origin = [-7, -3, 5];
+var origin = [-10.6, 3, 5];
 var R = 6;
 
 function updatePlanetPositionsIntegrator() {
