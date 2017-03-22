@@ -241,7 +241,7 @@
     function getWhale(){
       var objLoader = new THREE.OBJLoader();
       objLoader.load( './images/whale.obj', function ( obj ) {
-
+        /*
         var material = new THREE.MeshBasicMaterial( { color: 0x000033 } );
 
         obj.traverse(function(child) {
@@ -249,6 +249,7 @@
               child.material = material;
           }
         });
+        */
         whaleGeometry = obj.children[0].geometry;
 
         setUpSocket();
@@ -322,10 +323,11 @@
               } );
               */
 
-              var material = new THREE.MeshBasicMaterial( { color: 0x000033 } );
+              var material = new THREE.MeshLambertMaterial({ color: 0x000033, wireframe: false })
               var obj = new THREE.Mesh(whaleGeometry, material);
               obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
               obj.setRotationFromMatrix(userPos);
+              obj.scale.set(0.1, 0.1, 0.1);
 
               obj.updateMatrix();
 
