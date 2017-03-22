@@ -361,6 +361,10 @@
         setUpWebcam();
     }
 
+    window.addEventListener("blur", function() {
+      socket.disconnect();
+    });
+
   </script>
 
   <style>
