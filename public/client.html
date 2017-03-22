@@ -28,7 +28,7 @@
     var lensFlare;
 
     var socket = io.connect();
-    var objects = {}
+    var objects = {};
 
     function setUpWebcam(){
 
@@ -242,6 +242,8 @@
       socket.on('update', function (objectUpdates) {
 
         for (var id in objectUpdates) {
+          console.log(id);
+          console.log(objects);
           if (id != socket.id) {
             var userPos = new THREE.Matrix4();
             userPos.elements.set(objectUpdates[id]);
