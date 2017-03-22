@@ -365,6 +365,12 @@
       socket.disconnect();
     });
 
+    document.addEventListener("visibilitychange", function() {
+      if (document.hidden) {
+        socket.disconnect();
+      }
+    }, false);
+
   </script>
 
   <style>
