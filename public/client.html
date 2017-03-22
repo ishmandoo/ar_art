@@ -242,19 +242,21 @@
       socket.on('update', function (objectUpdates) {
 
         for (var id in objectUpdates) {
-          console.log(id);
-          console.log(objects);
+          //console.log(id);
+          //console.log(objects);
           if (id != socket.id) {
             var userPos = new THREE.Matrix4();
             userPos.elements.set(objectUpdates[id]);
 
             if (id in objects) {
+
               var obj = objects[id];
               obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
               obj.setRotationFromMatrix(userPos);
 
               obj.updateMatrix();
             } else {
+              console.log(id)
               /*
               var geometry = new THREE.BoxGeometry( 1, 1, 1 );
               var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
