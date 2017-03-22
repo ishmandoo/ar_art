@@ -184,7 +184,6 @@
       newPos.normalize();
       newPos.multiplyScalar(1.1);
       newPos.addVectors(newPos, originVec);
-      console.log(newPos)
       lensFlare.position.set(newPos.x, newPos.y, newPos.z);
     }
 
@@ -283,7 +282,7 @@
                 scene.add(ship);
               })
               */
-
+              /*
               var loader = new THREE.STLLoader();
               loader.load( './images/ship.stl', function ( geometry ) {
                 var material = new THREE.MeshPhongMaterial( { color: 0xff5533, specular: 0x111111, shininess: 200 } );
@@ -295,7 +294,39 @@
                 objects[id] = ship;
 
                 scene.add( ship );
+
+
+
               } );
+              */
+
+
+              var loader = new THREE.JSONLoader();
+
+              loader.load( './public/whale.js', function ( geometry, materials ) {
+
+            		var originalMaterial = materials[ 0 ];
+            		originalMaterial.skinning = true;
+
+            		var whale  = new THREE.SkinnedMesh( geometry, originalMaterial );
+            		whale.scale.set( 0.1, 0.1, 0.1 );
+
+
+                whale.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+                whale.setRotationFromMatrix(userPos);
+
+                var animation = new THREE.Animation(
+                    whale,
+                    geometry.animation
+                );
+                animation.play();
+
+                objects[id] = whale;
+
+                scene.add( whale );
+
+              });
+
 
             }
           }
@@ -312,7 +343,6 @@
       arController.process(video);
 
       placeLensFlare();
-      console.log(lensFlare);
 
       socket.emit("new pos", Array.from(camera.matrix.elements))
 
