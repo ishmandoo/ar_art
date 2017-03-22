@@ -317,6 +317,10 @@
       renderer.render( scene, camera );
     }
 
+    if(window.innerHeight > window.innerWidth){
+        alert("Please use Landscape!");
+    }
+    
     setUpWebcam();
   </script>
 
