@@ -23,8 +23,8 @@
 "colorSpecular"  : [0.9000, 0.9000, 0.9000],
 "transparency"  : 1.0,
 "specularCoef"  : 10.0,
-"mapDiffuse"    : "skins/humpback-whale.jpg",
-"mapBump"    : "skins/whale-normal.jpg",
+"mapDiffuse"    : "humpback-whale.jpg",
+"mapBump"    : "whale-normal.jpg",
 "vertexColors" : false
 }
 
