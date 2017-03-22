@@ -174,15 +174,6 @@
       scene.add(sunMesh)
     }
 
-    /*
-    function placeLensFlare() {
-      var newPos = new THREE.Vector3();
-      newPos.lerpVectors(camera.position, originVec, 0.3);
-      console.log(newPos)
-      lensFlare.position.set(newPos.x, newPos.y, newPos.z);
-    }
-    */
-
     function placeLensFlare() {
       var newPos = new THREE.Vector3();
 
@@ -263,7 +254,7 @@
 
               obj.updateMatrix();
             } else {
-
+              /*
               var geometry = new THREE.BoxGeometry( 1, 1, 1 );
               var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
               var obj = new THREE.Mesh( geometry, material );
@@ -277,7 +268,7 @@
               objects[id] = obj;
 
               scene.add(obj)
-
+              */
               /*
               THREEx.SpaceShips.loadSpaceFighter01(function(ship) {
                 ship.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
@@ -292,6 +283,19 @@
                 scene.add(ship);
               })
               */
+
+              var loader = new THREE.STLLoader();
+              loader.load( './images/ship.stl', function ( geometry ) {
+                var material = new THREE.MeshPhongMaterial( { color: 0xff5533, specular: 0x111111, shininess: 200 } );
+                var ship = new THREE.Mesh( geometry, material );
+
+                ship.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+                ship.setRotationFromMatrix(userPos);
+
+                objects[id] = ship;
+
+                scene.add( ship );
+              } );
 
             }
           }
@@ -320,7 +324,7 @@
     if(window.innerHeight > window.innerWidth){
         alert("Please use Landscape!");
     }
-    
+
     setUpWebcam();
   </script>
 
