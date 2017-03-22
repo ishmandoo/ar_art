@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+	</head>
+	<body>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
+
+		<script>
+      var camera, scene, renderer, geometry, material, mesh;
+
+      init();
+      animate();
+
+      function init() {
+
+          scene = new THREE.Scene();
+
+          camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+          camera.position.z = 10;
+          scene.add(camera);
+
+          material = new THREE.MeshNormalMaterial();
+
+          cone1 = new THREE.ConeGeometry(0.5, 2, 200);
+          mesh1 = new THREE.Mesh(cone1, material);
+
+
+          cone2 = new THREE.ConeGeometry(0.4, 1.5, 200);
+          mesh2 = new THREE.Mesh(cone2, material);
+          mesh2.position.z = 0.3;
+          mesh1.add(mesh2);
+
+          cone3 = new THREE.ConeGeometry(0.4, 1.5, 200);
+          mesh3 = new THREE.Mesh(cone3, material);
+          mesh3.position.z = -0.3;
+          mesh1.add(mesh3);
+
+
+
+          cylinder1 = new THREE.CylinderGeometry(0.6, 0.6, 1, 200);
+          mesh4 = new THREE.Mesh(cylinder1, material);
+          mesh4.position.y = -1;
+          mesh1.add(mesh4);
+
+
+          scene.add(mesh1);
+
+
+          renderer = new THREE.WebGLRenderer();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+
+          document.body.appendChild(renderer.domElement);
+
+      }
+
+      function animate() {
+
+          requestAnimationFrame(animate);
+          render();
+
+      }
+
+      function render() {
+
+          mesh1.rotation.x += 0.01;
+          mesh1.rotation.y += 0.02;
+
+          renderer.render(scene, camera);
+
+      }
+		</script>
+
+	</body>
+</html>

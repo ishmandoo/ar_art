@@ -16,6 +16,7 @@
 
 
     var origin = [-7, -3, 5];
+    var originVec = new THREE.Vector3(origin[0], origin[1], origin[3]);
 
     var arController;
     var video;
@@ -25,6 +26,7 @@
     var camera;
     var videoScene;
     var videoCamera;
+    var lensFlare;
 
     var socket = io.connect();
     var objects = {}
@@ -153,7 +155,7 @@
       var flareColor = new THREE.Color( 0xffffff );
       flareColor.setHSL( 1, 1, 1 );
 
-      var lensFlare = new THREE.LensFlare( textureFlare, 2500, 0.0, THREE.AdditiveBlending, flareColor );
+      lensFlare = new THREE.LensFlare( textureFlare, 2500, 0.0, THREE.AdditiveBlending, flareColor );
       lensFlare.position.set(origin[0], origin[1], origin[2]);
 
       scene.add(lensFlare);
@@ -164,13 +166,19 @@
       var sunMaterial = new THREE.MeshPhongMaterial({
         map: sunTextureMap,
         emissive: 0xffffff,
-        emissiveMap: sunTextureMap,
-        depthWrite: false
+        emissiveMap: sunTextureMap/*,
+        depthWrite: false*/
       });
       var sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
 
       sunMesh.position.set(origin[0], origin[1], origin[2]);
       scene.add(sunMesh)
+    }
+
+    function placeLensFlare() {
+      var newPos = new THREE.Vector3();
+      newPos.lerpVectors(camera.position, originVec, 0.3);
+      lensFlare.position = newPos;
     }
 
     function setUpThreeJs(){
@@ -238,7 +246,7 @@
 
               obj.updateMatrix();
             } else {
-              
+
               var geometry = new THREE.BoxGeometry( 1, 1, 1 );
               var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
               var obj = new THREE.Mesh( geometry, material );
@@ -281,6 +289,8 @@
       requestAnimationFrame(tick);
 
       arController.process(video);
+
+      placeLensFlare();
 
       socket.emit("new pos", Array.from(camera.matrix.elements))
 
