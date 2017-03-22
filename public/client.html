@@ -259,7 +259,10 @@
             if (id in objects) {
 
               var obj = objects[id];
-              obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+
+              var newPos = new THREE.Vector3(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+              obj.position.lerp(newPos, 0.3);
+              //obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
               obj.setRotationFromMatrix(userPos);
 
               obj.updateMatrix();
