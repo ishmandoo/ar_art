@@ -7,7 +7,7 @@
   <script src="./public/artoolkit.api.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
   <script src="./public/OBJLoader.js"></script>
-  <script src="./public/MTLLoader.js"></script>
+  <!--<script src="./public/MTLLoader.js"></script>-->
   <script src='./bower_components/threex.spaceships/threex.spaceships.js'></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
@@ -300,34 +300,29 @@
               } );
               */
 
+              var objLoader = new THREE.OBJLoader();
 
-              var loader = new THREE.JSONLoader();
+              var material = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
 
-              loader.load( './public/whale.js', function ( geometry, materials ) {
+    					objLoader.setMaterials( materials );
+    					objLoader.load( './images/whale.obj', function ( obj ) {
+                obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+                obj.setRotationFromMatrix(userPos);
 
-            		var originalMaterial = materials[ 0 ];
-            		originalMaterial.skinning = true;
+                obj.updateMatrix();
 
-            		var whale  = new THREE.SkinnedMesh( geometry, originalMaterial );
-            		whale.scale.set( 0.1, 0.1, 0.1 );
+                objects[id] = obj;
 
-
-                whale.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
-                whale.setRotationFromMatrix(userPos);
-
-                objects[id] = whale;
-
-                scene.add( whale );
-
-              });
-
+    						scene.add( obj );
+    					});
 
             }
           }
         }
       });
       socket.on('user disconnected', function(id) {
-        scene.remove(objects[id])
+        scene.remove(objects[id]);
+        delete objects[id];
       });
     }
 
@@ -347,9 +342,13 @@
 
     if(window.innerHeight > window.innerWidth){
         alert("Please use Landscape!");
+        setTimeout(function () {
+            setUpWebcam();
+        }, 5000)
+    } else {
+        setUpWebcam();
     }
 
-    setUpWebcam();
   </script>
 
   <style>
