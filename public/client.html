@@ -74,7 +74,6 @@
         arController.setPatternDetectionMode( artoolkit.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX );
 
         setUpThreeJs();
-        setUpSocket();
 
         arController.loadMultiMarker('public/multi-barcode-4x3.dat', function(marker, markerNum) {
 
@@ -96,7 +95,6 @@
 						}
           })
 
-          tick();
         });
       }
     }
@@ -188,7 +186,6 @@
       lensFlare.position.set(newPos.x, newPos.y, newPos.z);
     }
 
-
     function setUpThreeJs(){
       // Make the 3D scene
       scene = new THREE.Scene();
@@ -254,6 +251,7 @@
         });
         whaleGeometry = obj.children[0].geometry;
 
+        setUpSocket();
       });
     }
 
@@ -341,6 +339,8 @@
         scene.remove(objects[id]);
         delete objects[id];
       });
+
+      tick();
     }
 
     function tick(){
