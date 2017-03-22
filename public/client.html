@@ -29,6 +29,7 @@
 
     var socket = io.connect();
     var objects = {};
+    var whaleGeometry = THREE.BoxGeometry(1,1,1);
 
     function setUpWebcam(){
 
@@ -235,7 +236,25 @@
       videoScene.add(videoCamera);
       videoScene.add(plane);
 
+
+      getWhale();
       addEarth();
+    }
+
+    function getWhale(){
+      var objLoader = new THREE.OBJLoader();
+      objLoader.load( './images/whale.obj', function ( obj ) {
+
+        var material = new THREE.MeshBasicMaterial( { color: 0x000033 } );
+
+        obj.traverse(function(child) {
+          if (child instanceof THREE.Mesh) {
+              child.material = material;
+          }
+        });
+        whaleGeometry = obj.children[0].geometry;
+
+      });
     }
 
     function setUpSocket () {
@@ -287,6 +306,7 @@
               })
               */
               /*
+
               var loader = new THREE.STLLoader();
               loader.load( './images/ship.stl', function ( geometry ) {
                 var material = new THREE.MeshPhongMaterial( { color: 0xff5533, specular: 0x111111, shininess: 200 } );
@@ -304,27 +324,15 @@
               } );
               */
 
-              var objLoader = new THREE.OBJLoader();
-    					objLoader.load( './images/whale.obj', function ( obj ) {
+              var material = new THREE.MeshBasicMaterial( { color: 0x000033 } );
+              var obj = new THREE.Mesh(whaleGeometry, material);
+              obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
+              obj.setRotationFromMatrix(userPos);
 
-                var material = new THREE.MeshBasicMaterial( { color: 0x000033 } );
+              obj.updateMatrix();
 
-                obj.traverse(function(child) {
-                  if (child instanceof THREE.Mesh) {
-                      child.material = material;
-                  }
-                });
-
-                obj.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
-                obj.setRotationFromMatrix(userPos);
-
-                obj.updateMatrix();
-
-                objects[id] = obj;
-
-    						scene.add( obj );
-    					});
-
+              objects[id] = obj;
+              scene.add( obj );
             }
           }
         }
