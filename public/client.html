@@ -315,12 +315,6 @@
                 whale.position.set(userPos.elements[12], userPos.elements[13], userPos.elements[14]);
                 whale.setRotationFromMatrix(userPos);
 
-                var animation = new THREE.Animation(
-                    whale,
-                    geometry.animation
-                );
-                animation.play();
-
                 objects[id] = whale;
 
                 scene.add( whale );
